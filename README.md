@@ -9,6 +9,7 @@
 
 ## 支持的交易所
 - [x] 币安（Binance）
+- [x] OKX（欧易）
 - [ ] 火币（Huobi）- 开发中
 - [ ] 其他交易所 - 计划中
 
@@ -73,6 +74,13 @@ BINANCE_API_KEY=your_api_key
 BINANCE_API_SECRET=your_api_secret
 BINANCE_SYMBOLS=BTCUSDT,ETHUSDT,PUNTUSDT
 BINANCE_ENABLED=true
+
+# OKX配置
+OKX_API_KEY=your_okx_api_key
+OKX_API_SECRET=your_okx_api_secret
+OKX_PASSPHRASE=your_okx_passphrase
+OKX_SYMBOLS=BTC-USDT,ETH-USDT,PUNT-USDT
+OKX_ENABLED=true
 
 # 全局配置
 UPDATE_INTERVAL=60

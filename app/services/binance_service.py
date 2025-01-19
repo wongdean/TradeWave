@@ -1,14 +1,36 @@
 from datetime import datetime
 from binance.client import Client
-from config.config import Config
-from app.models.trade import Trade, Session
+from typing import List, Dict
+import logging
 
 class BinanceService:
-    def __init__(self):
-        config = Config.EXCHANGES['binance']
-        self.client = Client(config['api_key'], config['api_secret'])
-        self.symbols = config['symbols']
+    def __init__(self, api_key: str, api_secret: str):
+        self.client = Client(api_key, api_secret)
         
+    def get_trades(self, symbol: str, limit: int = 100) -> List[Dict]:
+        """获取最近的交易数据"""
+        try:
+            # 将 BTC-USDT 转换为 BTCUSDT 格式
+            formatted_symbol = symbol.replace('-', '')
+            trades_data = self.client.get_recent_trades(symbol=formatted_symbol, limit=limit)
+            trades = []
+            
+            for trade in trades_data:
+                trades.append({
+                    'exchange': 'binance',
+                    'symbol': symbol,  # 保持原始格式
+                    'price': float(trade['price']),
+                    'quantity': float(trade['qty']),
+                    'trade_time': datetime.fromtimestamp(trade['time']/1000),
+                    'side': 'sell' if trade['isBuyerMaker'] else 'buy',
+                    'trade_id': str(trade['id'])
+                })
+            return trades
+                
+        except Exception as e:
+            logging.error(f"Error fetching trades from Binance: {str(e)}")
+            return []
+
     def get_recent_trades(self):
         """获取最近的交易数据"""
         try:
