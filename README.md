@@ -9,10 +9,11 @@
 - PostgreSQL 数据存储
 - 实时数据更新
 
-## 环境配置
+## 快速开始
 
-### 方式一：使用 Conda（推荐）
+### 第一步：配置 Python 环境
 
+1. 使用 Conda 创建环境（推荐）：
 ```bash
 # 创建新环境
 conda create -n tradewave python=3.12 -y
@@ -20,69 +21,40 @@ conda create -n tradewave python=3.12 -y
 # 激活环境
 conda activate tradewave
 
-# 切换环境（如果需要）
-conda deactivate  # 先退出当前环境
-conda activate tradewave  # 再激活目标环境
-
-# 删除环境（如果需要）
-conda deactivate
-conda env remove -n tradewave
+# 安装依赖
+pip install -r requirements.txt
+pip install -e .
 ```
 
-### 方式二：使用 venv
-
+2. 或使用 venv（可选）：
 ```bash
 # 创建环境
 python -m venv venv
 
-# 激活环境
-# Linux/Mac:
+# 激活环境（Linux/Mac）
 source venv/bin/activate
-# Windows:
-# .\venv\Scripts\activate
+# Windows: .\venv\Scripts\activate
 
-# 退出环境
-deactivate
+# 安装依赖
+pip install -r requirements.txt
+pip install -e .
 ```
 
-## 项目运行
+### 第二步：配置数据库
 
-1. 确保环境已激活：
+1. 确保已安装 Docker 和 Docker Compose：
 ```bash
-# conda用户
-conda activate tradewave
-
-# venv用户
-source venv/bin/activate  # Linux/Mac
-# 或
-# .\venv\Scripts\activate  # Windows
+# 检查安装
+docker --version
+docker compose version
 ```
 
-2. 首次运行配置：
+2. 复制环境变量模板：
 ```bash
-# 确保启动脚本可执行
-chmod +x start.sh
-
-# 复制环境变量模板
 cp .env.example .env
-
-# 编辑环境变量
-vim .env  # 或使用其他编辑器
 ```
 
-3. 启动项目：
-```bash
-./start.sh  # 推荐
-# 或
-bash start.sh
-```
-
-注意：不要使用 `sh start.sh`，这可能导致环境变量问题。
-
-## 项目配置
-
-### 数据库配置
-
+3. 配置数据库连接信息（默认无需修改）：
 ```env
 # PostgreSQL配置
 DB_USER=crypto
@@ -91,6 +63,34 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=crypto_trades
 ```
+
+4. 启动数据库：
+```bash
+# 启动
+docker compose up -d db
+
+# 验证状态
+docker compose ps
+```
+
+### 第三步：运行项目
+
+1. 确保环境已激活：
+```bash
+conda activate tradewave
+```
+
+2. 确保启动脚本可执行：
+```bash
+chmod +x start.sh
+```
+
+3. 启动项目：
+```bash
+./start.sh
+```
+
+## 配置说明
 
 ### 交易所配置
 
@@ -132,33 +132,43 @@ trades表字段说明：
 - side: 交易方向（买/卖）
 - trade_id: 交易ID
 
-### 数据访问
-
-默认数据库连接信息：
-- 主机：localhost
-- 端口：5432
-- 数据库：crypto_trades
-- 用户名：crypto
-- 密码：crypto123
-
 ## 常见问题
 
-1. 环境激活失败
-   - 检查是否正确安装了 conda 或 Python
-   - 确保使用了正确的激活命令
+### 环境问题
 
-2. 依赖安装失败
-   - 确保环境已正确激活
-   - 检查网络连接
-   - 尝试使用 `pip install --no-cache-dir -r requirements.txt`
+1. conda 环境问题：
+   - 确保正确安装了 conda
+   - 使用 `conda env list` 检查环境
+   - 如需重新创建：`conda env remove -n tradewave && conda create -n tradewave python=3.12 -y`
 
-3. 数据库连接失败
-   - 确保 PostgreSQL 服务已启动
-   - 验证数据库连接信息是否正确
-   - 检查数据库用户权限
+2. 依赖安装失败：
+   - 确保环境已激活
+   - 尝试：`pip install --no-cache-dir -r requirements.txt`
 
-4. 交易所API连接失败
-   - 验证API密钥是否正确
-   - 检查网络连接
-   - 确认API权限是否足够
+### 数据库问题
+
+1. 数据库启动问题：
+   - 检查 Docker 状态：`docker ps`
+   - 查看日志：`docker compose logs -f db`
+   - 端口冲突：修改 `docker-compose.yml` 中的端口映射
+
+2. 数据库连接失败：
+   - 确保容器运行：`docker compose ps`
+   - 验证连接信息
+   - 检查数据库日志：`docker compose logs -f db`
+
+### 其他操作
+
+1. 停止数据库：
+```bash
+# 停止并保留数据
+docker compose stop db
+
+# 停止并删除数据（谨慎使用）
+docker compose down
+```
+
+2. 数据持久化：
+   - 数据默认保存在 `./data/postgres` 目录
+   - 确保目录具有正确的权限
 
